@@ -1,0 +1,77 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.9"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "a3",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Histogram_Template::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Histogram_Template-Release-fa7cc6281f15c14c442e.json",
+					"name" : "Histogram_Template",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ListScan_Template::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ListScan_Template-Release-3307659b8b3c85498516.json",
+					"name" : "ListScan_Template",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "wb::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-wb-Release-51481ac2414bf6ee57eb.json",
+					"name" : "wb",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug",
+		"source" : "C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 2
+	}
+}
