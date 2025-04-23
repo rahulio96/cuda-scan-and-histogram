@@ -21,17 +21,22 @@ __global__ void scan(float *input, float *output, float *aux, int len) {
 
     // Data Loading
     __shared__ float XY[2 * BLOCK_SIZE];
+    
+    // In case we have extra threads, init to 0
+    XY[threadIdx.x] = 0.0f;
+    XY[threadIdx.x + blockDim.x] = 0.0f;
+
     int i = 2 * blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < numElements) {
+    if (i < len) {
         XY[threadIdx.x] = input[i];
     }
 
-    if (i + blockDim.x < numElements) {
+    if (i + blockDim.x < len) {
         XY[threadIdx.x + blockDim.x] = input[i + blockDim.x];
     }
 
     // Reduction
-    for (unsigned int stride = 1; stride <= BLOCK_SIZE; stride * 2 - 1) {
+    for (unsigned int stride = 1; stride <= BLOCK_SIZE; stride *= 2) {
         __syncthreads();
         int index = (threadIdx.x + 1) * stride * 2 - 1;
         if (index < 2 * BLOCK_SIZE) {
@@ -49,20 +54,37 @@ __global__ void scan(float *input, float *output, float *aux, int len) {
     }
 
     __syncthreads();
-    if (i < numElements) {
-        // MIGHT NEED TO CHANGE
+    if (i < len) {
         output[i] = XY[threadIdx.x];
     }
 
-    if (i + blockDim.x < numElements) {
+    if (i + blockDim.x < len) {
         output[i + blockDim.x] = XY[threadIdx.x + blockDim.x];
+    }
+
+    // Get the last value of the shared memory block (the partial prefix sum)
+    // Add it to aux so we can get the total prefix later
+    if (aux != NULL) {
+        aux[blockIdx.x] = XY[2 * BLOCK_SIZE - 1];
     }
 }
 
 __global__ void addScannedBlockSums(float *output, float *aux, int len) {
 	//@@ Modify the body of this kernel to add scanned block sums to 
 	//@@ all values of the scanned blocks
+    int i = blockIdx.x * blockDim.x * 2 + threadIdx.x;
 
+    // Skip the first sum
+    if (blockIdx.x > 0) {
+        float offset = aux[blockIdx.x-1];
+        if (i < len) {
+            output[i] += offset;
+        }
+
+        if (i + blockDim.x < len) {
+            output[i + blockDim.x] += offset;
+        }
+    }
 }
 
 int main(int argc, char **argv) {
@@ -87,8 +109,8 @@ int main(int argc, char **argv) {
   wbTime_start(GPU, "Allocating device memory.");
   //@@ Allocate device memory
   //you can assume that deviceAuxArray size would not need to be more than BLOCK_SIZE*2 (i.e., 1024)
-  int size = numElements * sizeOf(float);
-  int auxSize = BLOCK_SIZE * 2 * sizeOf(float);
+  int size = numElements * sizeof(float);
+  int auxSize = BLOCK_SIZE * 2 * sizeof(float);
 
   cudaMalloc((void**)&deviceInput, size);
   cudaMalloc((void**)&deviceOutput, size);
@@ -110,8 +132,8 @@ int main(int argc, char **argv) {
   wbTime_stop(GPU, "Copying input host memory to device.");
 
   //@@ Initialize the grid and block dimensions here
-  dim3 dimBlock((num_elements - 1) / BLOCK_SIZE + 1, 1, 1);
-  dim3 dimGrid(BLOCK_SIZE, 1, 1);
+  dim3 dimGrid((numElements - 1) / BLOCK_SIZE + 1, 1, 1);
+  dim3 dimBlock(BLOCK_SIZE, 1, 1);
 
   wbTime_start(Compute, "Performing CUDA computation");
   //@@ Modify this to complete the functionality of the scan
@@ -121,9 +143,9 @@ int main(int argc, char **argv) {
   //@@ and 2) for generating scanned aux array that has the scanned block sums. 
   //@@ (hint: pass NULL to the aux parameter)
   //@@ Then you should call addScannedBlockSums kernel.
-  scan << <dimGrid, dimBlock> >> (deviceInput, deviceOutput, deviceAuxArray, numElements);
-  scan << <dimGrid, dimBlock> >> (deviceInput, deviceOutput, NULL, numElements);
-  addScannedBlockSums << <dimGrid, dimBlock> >> (deviceOutput, deviceAuxScannedArray, numElements);
+  scan << <dimGrid, dimBlock >> > (deviceInput, deviceOutput, deviceAuxArray, numElements);
+  scan << <dimGrid, dimBlock >> > (deviceAuxArray, deviceAuxScannedArray, NULL, numElements);
+  addScannedBlockSums << <dimGrid, dimBlock >> > (deviceOutput, deviceAuxScannedArray, numElements);
   cudaDeviceSynchronize();
   wbTime_stop(Compute, "Performing CUDA computation");
 
