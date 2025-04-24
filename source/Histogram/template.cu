@@ -52,11 +52,16 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(GPU, "Allocating device memory");
   //@@ Allocate device memory here
+  int size = inputLength * sizeof(float);
+  cudaMalloc((void**)&deviceInput, size);
+  cudaMalloc((void**)&deviceBins, size);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Allocating device memory");
 
   wbTime_start(GPU, "Copying input host memory to device");
   //@@ Copy input host memory to device
+  cudaMemcpy(deviceInput, hostInput, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceBins, hostBins, size, cudaMemcpyHostToDevice);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input host memory to device");
 	
@@ -65,19 +70,26 @@ int main(int argc, char *argv[]) {
   wbTime_stop(GPU, "Clearing the bins on device");
 
   //@@ Initialize the grid and block dimensions here
+  dim3 dimGrid((inputLength - 1) / BLOCK_SIZE + 1, 1, 1);
+  dim3 dimBlock(BLOCK_SIZE, 1, 1);
 
   wbLog(TRACE, "Launching kernel");
   wbTime_start(Compute, "Performing CUDA computation");
   //@@ Invoke kernels: first call histogram kernel and then call saturate kernel
+  histogram << <dimGrid, dimBlock >> > (deviceInput, deviceBins, inputLength, NUM_BINS);
+  saturate << <dimGrid, dimBlock >> > (deviceBins, NUM_BINS);
   wbTime_stop(Compute, "Performing CUDA computation");
 
   wbTime_start(Copy, "Copying output device memory to host");
   //@@ Copy output device memory to host
+  cudaMemcpy(hostBins, deviceBins, size, cudaMemcpyDeviceToHost);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Copy, "Copying output device memory to host");
 
   wbTime_start(GPU, "Freeing device memory");
   //@@ Free the device memory here
+  cudaFree(deviceInput);
+  cudaFree(deviceBins);
   wbTime_stop(GPU, "Freeing device memory");
 
   wbSolution(args, hostBins, NUM_BINS);
