@@ -3,8 +3,8 @@
 .\Debug\ListScan_Template -e .\ListScan\Dataset\2\output.raw -i .\ListScan\Dataset\2\input.raw -o .\ListScan\Dataset\2\myoutput.raw -t vector > .\ListScan\Dataset\2\result.txt
 .\Debug\ListScan_Template -e .\ListScan\Dataset\3\output.raw -i .\ListScan\Dataset\3\input.raw -o .\ListScan\Dataset\3\myoutput.raw -t vector > .\ListScan\Dataset\3\result.txt
 .\Debug\ListScan_Template -e .\ListScan\Dataset\4\output.raw -i .\ListScan\Dataset\4\input.raw -o .\ListScan\Dataset\4\myoutput.raw -t vector > .\ListScan\Dataset\4\result.txt
-.\Debug\Histogram_Template -e .\Histogram\Dataset\0\output.raw -i .\Histogram\Dataset\0\input.raw -o .\Histogram\Dataset\0\myoutput.raw -t integral_vector
-.\Debug\Histogram_Template -e .\Histogram\Dataset\1\output.raw -i .\Histogram\Dataset\1\input.raw -o .\Histogram\Dataset\1\myoutput.raw -t integral_vector
-.\Debug\Histogram_Template -e .\Histogram\Dataset\2\output.raw -i .\Histogram\Dataset\2\input.raw -o .\Histogram\Dataset\2\myoutput.raw -t integral_vector
-.\Debug\Histogram_Template -e .\Histogram\Dataset\3\output.raw -i .\Histogram\Dataset\3\input.raw -o .\Histogram\Dataset\3\myoutput.raw -t integral_vector
-.\Debug\Histogram_Template -e .\Histogram\Dataset\4\output.raw -i .\Histogram\Dataset\4\input.raw -o .\Histogram\Dataset\4\myoutput.raw -t integral_vector
+.\Debug\Histogram_Template -e .\Histogram\Dataset\0\output.raw -i .\Histogram\Dataset\0\input.raw -o .\Histogram\Dataset\0\myoutput.raw -t integral_vector > .\Histogram\Dataset\0\result.txt
+.\Debug\Histogram_Template -e .\Histogram\Dataset\1\output.raw -i .\Histogram\Dataset\1\input.raw -o .\Histogram\Dataset\1\myoutput.raw -t integral_vector > .\Histogram\Dataset\1\result.txt
+.\Debug\Histogram_Template -e .\Histogram\Dataset\2\output.raw -i .\Histogram\Dataset\2\input.raw -o .\Histogram\Dataset\2\myoutput.raw -t integral_vector > .\Histogram\Dataset\2\result.txt
+.\Debug\Histogram_Template -e .\Histogram\Dataset\3\output.raw -i .\Histogram\Dataset\3\input.raw -o .\Histogram\Dataset\3\myoutput.raw -t integral_vector > .\Histogram\Dataset\3\result.txt
+.\Debug\Histogram_Template -e .\Histogram\Dataset\4\output.raw -i .\Histogram\Dataset\4\input.raw -o .\Histogram\Dataset\4\myoutput.raw -t integral_vector > .\Histogram\Dataset\4\result.txt
