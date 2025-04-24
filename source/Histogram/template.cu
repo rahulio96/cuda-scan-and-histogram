@@ -25,10 +25,45 @@ __global__ void histogram(unsigned int *input, unsigned int *bins,
 	//(hint: since NUM_BINS=4096 is larger than maximum allowed number of threads per block, 
 	//be aware that threads would need to initialize more than one shared memory bin 
 	//and update more than one global memory bin)
+
+	__shared__ unsigned int private_histo[NUM_BINS];
+	
+	// Init to shared memory bins to 0
+	for (int i = threadIdx.x; i < num_bins; i += blockDim.x) {
+		private_histo[i] = 0;
+	}
+	__syncthreads();
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int stride = blockDim.x * gridDim.x;
+
+	// Add to shared memory
+	while (i < num_elements) {
+		unsigned int bin = input[i];
+		atomicAdd(&(private_histo[bin]), 1);
+		i += stride;
+	}
+
+	__syncthreads();
+
+	// Transfer from shared memory to output bin
+	// Update global memory bin
+	for (int i = threadIdx.x; i < num_bins; i += blockDim.x) {
+		atomicAdd(&(bins[i]), private_histo[i]);
+	}
 }
 
 __global__ void saturate(unsigned int *bins, unsigned int num_bins) {
 	//@@ Write the kernel that applies saturtion to counters (i.e., if the bin value is more than 127, make it equal to 127)
+	int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int stride = blockDim.x;
+
+	while (i < num_bins) {
+		if (bins[i] > 127) {
+			bins[i] = 127;
+		}
+		i += stride;
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -52,16 +87,17 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(GPU, "Allocating device memory");
   //@@ Allocate device memory here
-  int size = inputLength * sizeof(float);
-  cudaMalloc((void**)&deviceInput, size);
-  cudaMalloc((void**)&deviceBins, size);
+  int size = sizeof(unsigned int);
+  cudaMalloc((void**)&deviceInput, inputLength * size);
+  cudaMalloc((void**)&deviceBins, NUM_BINS * size);
+  cudaMemset(deviceBins, 0, NUM_BINS * size);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Allocating device memory");
 
   wbTime_start(GPU, "Copying input host memory to device");
   //@@ Copy input host memory to device
-  cudaMemcpy(deviceInput, hostInput, size, cudaMemcpyHostToDevice);
-  cudaMemcpy(deviceBins, hostBins, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceInput, hostInput, inputLength * size, cudaMemcpyHostToDevice);
+  cudaMemcpy(deviceBins, hostBins, NUM_BINS * size, cudaMemcpyHostToDevice);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Copying input host memory to device");
 	
@@ -82,7 +118,7 @@ int main(int argc, char *argv[]) {
 
   wbTime_start(Copy, "Copying output device memory to host");
   //@@ Copy output device memory to host
-  cudaMemcpy(hostBins, deviceBins, size, cudaMemcpyDeviceToHost);
+  cudaMemcpy(hostBins, deviceBins, NUM_BINS * size, cudaMemcpyDeviceToHost);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(Copy, "Copying output device memory to host");
 
