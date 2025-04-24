@@ -90,7 +90,6 @@ int main(int argc, char *argv[]) {
   int size = sizeof(unsigned int);
   cudaMalloc((void**)&deviceInput, inputLength * size);
   cudaMalloc((void**)&deviceBins, NUM_BINS * size);
-  cudaMemset(deviceBins, 0, NUM_BINS * size);
   CUDA_CHECK(cudaDeviceSynchronize());
   wbTime_stop(GPU, "Allocating device memory");
 
@@ -103,6 +102,7 @@ int main(int argc, char *argv[]) {
 	
   wbTime_start(GPU, "Clearing the bins on device");
   //@@ zero out the deviceBins using cudaMemset() 
+  cudaMemset(deviceBins, 0, NUM_BINS * sizeof(unsigned int));
   wbTime_stop(GPU, "Clearing the bins on device");
 
   //@@ Initialize the grid and block dimensions here
