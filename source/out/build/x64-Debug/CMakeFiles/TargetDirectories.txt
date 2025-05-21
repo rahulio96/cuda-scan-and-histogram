@@ -1,5 +1,0 @@
-C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug/CMakeFiles/Histogram_Template.dir
-C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug/CMakeFiles/wb.dir
-C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug/CMakeFiles/ListScan_Template.dir
-C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-C:/Users/rahulgupta/Desktop/CSC-163/cuda-scan-and-histogram/source/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
